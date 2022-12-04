@@ -83,6 +83,10 @@ class poolGeneration():
         self.tam_bags = 0.5
         self.nr_bags = 100
         self.file_out = "isto_e_um_teste"
+
+        self.local = "saida"
+
+        self.c = []
         
 
     def generate_bags(self, X_train, y_train, tam_bags=0.5, nr_bags=100):
@@ -131,6 +135,8 @@ class poolGeneration():
                 r.append(self.parallel_distance2(i, self.bags, self.group, self.types))
             
             c, score,  pred, pool = zip(*r)
+
+            self.c = c
             #print(c)
             
         elif (first_evaluate == False and population == None):
@@ -147,17 +153,20 @@ class poolGeneration():
                 r.append(self.parallel_distance2(j, self.bags, self.group, self.types))
 
             c, score, pred, pool = zip(*r)
+            self.c = c
+
         elif (population != None):
             dist['name'] = population
             indices = []
             for i in population:
-                indices.append(bags['name'].index(i[0]))
+                indices.append(self.bags['name'].index(i[0]))
             # r = Parallel(n_jobs=self.jobs)(delayed(self.parallel_distance2)(i,self.bags, self.group, self.types) for i in indices)
             
             r = []
             for i in indices: 
                 r.append(self.parallel_distance2(i,self.bags, self.group, self.types))
             c, score, pred, pool = zip(*r)
+            self.c = c
 
         dist['dist'] = Cpx.dispersion_linear(c)
         dist['score'] = score
@@ -323,21 +332,10 @@ class poolGeneration():
 
     def the_function(self, population, gen, fitness):
 
-        '''
-        responsavel por alterar a generation, assim como zerar variaveis, alterar populacoes, e copiar arquivos
-        :param population: populacao, retorna do DEAP
-        :param gen: generation Retorna do DEAP
-        :param offspring: nova populacao
-        :return:
-        '''
-
-        global generation, off, method_disperse, nr_generation, bags, local, file_out, accuracia_ant, \
-            s, c, dist_temp, gen_temp, pop_temp, bags_temp, stop_criteria, save_info
-
         generation = gen
         if self.save_info:
             if self.repetition == 1:
-                self.save_generation_info(generation,fitness,c)
+                self.save_generation_info(generation,fitness, self.c)
         self.off = []
         base_name = self.base_name + str(generation)
         bags_ant = self.bags
@@ -358,9 +356,9 @@ class poolGeneration():
             self.max_acc(self.dist['score_g'], generation=self.generation, population=self.off, bags=bags)
         if generation == self.nr_generation:
             if self.stop_criteria == "maxdistance" or self.stop_criteria=="maxacc":
-                self.save_bags(self.pop_temp, self.bags_temp, self.gen_temp, self.base_name, version=1)
+                self.save_bags(self.pop_temp, self.bags_temp, self.gen_temp, self.base_name)
             else:
-                self.save_bags(self.off, bags, base_name=self.base_name, version=0)
+                self.save_bags(self.off, bags, base_name=self.base_name)
         if (self.method_disperse == True and generation != self.nr_generation):
             self.get_complexity(population=population)
         return population
@@ -371,11 +369,11 @@ class poolGeneration():
 
             for j in pop_temp:
                 name = []
-                indx = bags['name'].index(j)
-                nm = bags['inst'][indx]
-                name.append(bags['name'][indx])
+                indx = self.bags['name'].index(j)
+                nm = self.bags['inst'][indx]
+                name.append(self.bags['name'][indx])
                 name.extend(nm)
-                Cpx.save_bag(name, 'bags', local + "/Bags", base_name + self.file_out, self.iteration)
+                Cpx.save_bag(name, 'bags', self.local + "/Bags", base_name + self.file_out, self.iteration)
 
         elif(type==1):
             x = open(generations_escolhida, "a")
@@ -388,9 +386,9 @@ class poolGeneration():
                 name.append(bags_temp['name'][indx])
                 name.extend(nm)
                 if self.classifier=="perc":
-                    Cpx.save_bag(name, 'bags', local + "/Bags", base_name + self.file_out, self.iteration)
+                    Cpx.save_bag(name, 'bags', self.local + "/Bags", base_name + self.file_out, self.iteration)
                 elif self.classifier=="tree":
-                    Cpx.save_bag(name, 'bags', local + "/tree/Bags", base_name + self.file_out, self.iteration)
+                    Cpx.save_bag(name, 'bags', self.local + "/tree/Bags", base_name + self.file_out, self.iteration)
 
         elif type==2:
             x = open(generations_escolhida, "a")
@@ -402,7 +400,7 @@ class poolGeneration():
                 nm = bags_temp['inst'][indx]
                 name.append(bags_temp['name'][indx])
                 name.extend(nm)
-                Cpx.save_bag(name, 'bags', local + "tree/Bags", base_name + self.file_out, self.iteration)
+                Cpx.save_bag(name, 'bags', self.local + "tree/Bags", base_name + self.file_out, self.iteration)
 
 
     def save_generation_info(self, generation, fitness, complexity):
@@ -450,7 +448,7 @@ class poolGeneration():
             if generation == self.nr_generation:
                 for i in self.tem2:
                     spamwriter.writerow(i)
-        graf.grafico_disper(self.base_name, ["Disp complexity overlapping", "Disp complexity neighborhood", "Disp diversity"], fitness[0], fitness[1], valor3=fitness[2], legend="Lithuanian", i= repeticao, gr=generation,pasta= arquivo_de_saida)
+        graf.grafico_disper(self.base_name, ["Disp complexity overlapping", "Disp complexity neighborhood", "Disp diversity"], fitness[0], fitness[1], valor3=fitness[2], legend="Lithuanian", i= self.repeticao, gr=generation,pasta= self.arquivo_de_saida)
         del tem, k, m1, m2, temp,m3, m4, m6, m7,m8, m9
 
     def max_distance(self, fitness, generation=None, population=None, bags=None):
@@ -460,7 +458,6 @@ class poolGeneration():
         :param fit3:
         ideal para distancia linear
         '''
-        global dist_temp, pop_temp, gen_temp, bags_temp
         if fitness[2]:
             dist_dist_media = np.mean(Cpx.dispersion(np.column_stack([fitness[0], fitness[1], fitness[2]])))
         else:

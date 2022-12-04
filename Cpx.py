@@ -540,30 +540,30 @@ def save_bag(inds, types, local, base_name, iteration):
     if types == 'validation':
         # print('entreivali')
         if (os.path.exists(local + "Validacao/" + str(iteration)) == False):
-            os.system("mkdir -p " + local + "/" + str(iteration))
-        with open(local + "/" + str(iteration) + "/" + base_name + ".csv", 'w') as f:
+            os.system("mkdir -p " + local + "/" + str(iteration)+ "/" + base_name + ".csv")
+        with open(base_name + ".csv", 'w') as f:
             # print('entreivali')
             w = csv.writer(f)
             w.writerow(inds)
 
     if types == "test":
         if (os.path.exists(local + "Teste/" + str(iteration)) == False):
-            os.system("mkdir -p " + local + "/" + str(iteration))
-        with open(local + "/" + str(iteration) + "/" + base_name + ".csv", 'w') as f:
+            os.system("mkdir -p " + local + "/" + str(iteration)+ "/" + base_name + ".csv")
+        with open(base_name + ".csv", 'w') as f:
             w = csv.writer(f)
             w.writerow(inds)
 
     if types == "train":
         if (os.path.exists(local + "Treino/" + str(iteration)) == False):
-            os.system("mkdir -p " + local + "/" + str(iteration))
-        with open(local + "/" + str(iteration) + "/" + base_name + ".csv", 'w') as f:
+            os.system("mkdir -p " + local + "/" + str(iteration)+ "/" + base_name + ".csv")
+        with open(base_name + ".csv", 'w') as f:
             w = csv.writer(f)
             w.writerow(inds)
 
     if types == "bags":
         if (os.path.exists(local + "Bags/" + str(iteration)) == False):
-            os.system("mkdir -p " + local + "/" + str(iteration))
-        with open(local + "/" + str(iteration) + "/" + base_name + ".csv", 'a') as f:
+            os.system("mkdir -p " + local + "/" + str(iteration)+ "/" + base_name + ".csv")
+        with open(base_name + ".csv", 'a') as f:
             w = csv.writer(f)
             w.writerow(inds)
 
