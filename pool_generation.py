@@ -87,6 +87,7 @@ class poolGeneration():
         self.local = "saida"
 
         self.c = []
+        self.bags_saved = []
         
 
     def generate_bags(self, X_train, y_train, tam_bags=0.5, nr_bags=100):
@@ -373,6 +374,7 @@ class poolGeneration():
                 nm = self.bags['inst'][indx]
                 name.append(self.bags['name'][indx])
                 name.extend(nm)
+                self.bags_saved.append(name)
                 Cpx.save_bag(name, 'bags', self.local + "/Bags", base_name + self.file_out, self.iteration)
 
         elif(type==1):
@@ -490,8 +492,9 @@ class poolGeneration():
         self.y_train = y_train
         self.X_val = X_val
         self.y_val = y_val
+        self.iteration = iteration
 
-        for t in range(1, iteration):
+        for t in range(1, self.iteration):
 
             self.name_individual = 100
             self.off = []
