@@ -43,7 +43,6 @@ Abrir o arquivo `sample.ipynb` para ver um exemplo da utilização do projeto.
 
 Para rodar esse projeto, você vai precisar configurar as seguinte variáves: 
 
-`API_KEY`
 - `group`: Grupo de Complexidades usadas para geração dos bags.
     ``` python
     pool_generate.group = ["overlapping", 'neighborhood', '', '', '', '']
@@ -89,3 +88,7 @@ Para rodar esse projeto, você vai precisar configurar as seguinte variáves:
 
 - c = []
 - bags_saved = []
+
+### Bibliografia
+
+Para entender o funcinamento e analizar os resultados dessa abordagem acesse o artigo: [Exploring diversity in data complexity and classifier decision spaces for pool generation](https://doi.org/10.1016/j.inffus.2022.09.001)
