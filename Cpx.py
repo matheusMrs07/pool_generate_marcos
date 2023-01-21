@@ -1,27 +1,20 @@
-﻿from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Perceptron
-from deslib.static.oracle import Oracle
-from deslib.util import diversity, datasets
-from sklearn.utils import check_random_state
+﻿from sklearn.linear_model import Perceptron
+from deslib.util import diversity
+
 from sklearn.metrics import pairwise_distances
-from sklearn.metrics import cohen_kappa_score
-from sklearn.naive_bayes import GaussianNB
+
 from mlxtend.classifier import EnsembleVoteClassifier
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.ensemble import VotingClassifier
 from sklearn.tree import DecisionTreeClassifier
-from rpy2.rinterface_lib import openrlib
+
 
 import numpy as np
-import subprocess
-import csv, random, os
+import csv, os
 
-#os.environ['R_HOME'] = '/home/marcos/miniconda3/envs/l/lib/R'
-os.environ['R_HOME'] = r"c:/python310/lib/R"
+os.environ['R_HOME'] = r"C:/Program Files/R/R-4.2.1"
 #os.environ['R_HOME'] = '/home/marcos/miniconda3/envs/l/lib/R'
 
 import pandas as pd
-from rpy2.robjects import pandas2ri
+from rpy2.robjects import pandas2ripip freeze > requirements.txt
 
 pandas2ri.activate()
 import rpy2.robjects.packages as rpackages

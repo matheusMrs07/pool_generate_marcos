@@ -1,40 +1,20 @@
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import Perceptron
-from deslib.static.oracle import Oracle
-from deslib.util import diversity, datasets
-from sklearn.utils import check_random_state
-from sklearn.metrics import pairwise_distances
-from sklearn.metrics import cohen_kappa_score
-from sklearn.naive_bayes import GaussianNB
-from mlxtend.classifier import EnsembleVoteClassifier
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.ensemble import VotingClassifier
-from sklearn.tree import DecisionTreeClassifier
-from rpy2.rinterface_lib import openrlib
+
 
 from deap import algorithms
 from deap import base
 from deap import creator
 from deap import tools
 
-from joblib import  Parallel, delayed
 
 import collections, Graficos_ga as graf
 
-from traitlets import ClassBasedTraitType
-
-
 import Cpx
 
-
 import numpy as np
-import subprocess
 import csv, random, os
 
-
-#os.environ['R_HOME'] = '/home/marcos/miniconda3/envs/l/lib/R'
-os.environ['R_HOME'] = r"c:/python310/lib/R"
-#os.environ['R_HOME'] = '/home/marcos/miniconda3/envs/l/lib/R'
+os.environ['R_HOME'] = r"C:/Program Files/R/R-4.2.1"
 
 import pandas as pd
 from rpy2.robjects import pandas2ri
@@ -194,7 +174,7 @@ class poolGeneration():
         :return: listas de complexidade, score do prorpio bag, score sobre a validacao, e a predicao sobre a validacao
         """
         indx_bag1 = bags['inst'][i]
-        X_bag, y_bag = self.biuld_bags(indx_bag1)
+        X_bag, y_bag = self.build_bags(indx_bag1)
         cpx = (Cpx.complexity_data3(X_bag, y_bag, group, types))
         
         
@@ -204,7 +184,7 @@ class poolGeneration():
             estimator, score, pred = Cpx.biuld_classifier_tree(X_bag, y_bag, X_bag, y_bag, self.X_val, self.y_val)
         return cpx,  score,  pred, estimator
 
-    def biuld_bags(self, indx_bag):
+    def build_bags(self, indx_bag):
         
         '''
         Recebe o indice de instancias de um bag
@@ -243,7 +223,7 @@ class poolGeneration():
         indx2 = self.bags['name'].index(ind2[0])
         indx_bag1 = self.bags['inst'][indx]
         indx_bag2 = self.bags['inst'][indx2]
-        _, y_data = self.biuld_bags(indx_bag1)
+        _, y_data = self.build_bags(indx_bag1)
         cont = 0
 
         while (individual != True):
@@ -286,7 +266,7 @@ class poolGeneration():
     def verify_bag(self, ind_out):
 
         classes = collections.Counter(self.y_train)
-        _, y = self.biuld_bags(ind_out)
+        _, y = self.build_bags(ind_out)
         counter = collections.Counter(y)
         if len(counter.values()) == len(classes) and min(counter.values())  >= 2:
             return True
@@ -298,7 +278,7 @@ class poolGeneration():
         ind_out = []
         indx = self.bags['name'].index(ind[0])
         indx_bag1 = self.bags['inst'][indx]
-        X, y_data = self.biuld_bags(indx_bag1)
+        X, y_data = self.build_bags(indx_bag1)
         inst = 0
         inst2 = len(y_data)
 
@@ -309,7 +289,7 @@ class poolGeneration():
             ind2 = ind2[0]
         indx2 = self.bags['name'].index(ind2)
         indx_bag2 = self.bags['inst'][indx2]
-        X2, y2_data = self.biuld_bags(indx_bag2)
+        X2, y2_data = self.build_bags(indx_bag2)
 
         while y_data[inst] != y2_data[inst2 - 1]:
             inst = random.randint(0, len(y_data) - 1)
@@ -523,6 +503,12 @@ class poolGeneration():
             self.pop = algorithms.eaMuPlusLambda(self.pop, toolbox, self.nr_child, self.nr_individual, self.proba_crossover, self.proba_mutation,
                                                 self.nr_generation,
                                                     generation_function=self.the_function)
+
+    def get_bags(self):
+        bags = [] 
+        for bag in self.bags_saved:
+            bags.append(self.build_bags(bag[1:]))
+        return bags
 
 
 
