@@ -14,7 +14,7 @@ os.environ['R_HOME'] = r"C:/Program Files/R/R-4.2.1"
 #os.environ['R_HOME'] = '/home/marcos/miniconda3/envs/l/lib/R'
 
 import pandas as pd
-from rpy2.robjects import pandas2ripip freeze > requirements.txt
+from rpy2.robjects import pandas2ri
 
 pandas2ri.activate()
 import rpy2.robjects.packages as rpackages
