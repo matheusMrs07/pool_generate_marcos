@@ -45,7 +45,7 @@ $ pip install -r requirements.txt
 Open the `sample.ipynb` file to see an example of using the project.
 
 
-### ⚙️ Configurações do Projeto 
+### ⚙️ Project Settingd 
 
 To run this project, you will need to configure the following variables:
 - `group`: Group of Complexities used to generate the bags.
@@ -93,7 +93,7 @@ To run this project, you will need to configure the following variables:
 - `bags_saved`: variable that stores the generated bags
 
 
-### 💡 Funções
+### 💡 Functions
 
 The project provides the following functions:
 - `class poolGeneration(method_disperse=True, fit_value=[1.0, 1.0, -1.0], nr_generation=20, nr_individual=100, nr_pop=100, proba_crossover=0.9, proba_mutation=0.1, nr_child=100, iteration = 20, stop_criteria = "maxdistance", classifier = "tree", tam_bags = 0.5, nr_bags = 100)`: Initialization function, variables are described in the previous section.
@@ -115,6 +115,6 @@ The project provides the following functions:
      pool_generate.get_pool()
      # [[(classificador_1), (classificador_2), ..., (classificador_n)]]
      ```
-### 📖 Bibliografia
+### 📖 Bibliografy
 
 Para entender o funcinamento e analizar os resultados dessa abordagem acesse o artigo: [Exploring diversity in data complexity and classifier decision spaces for pool generation](https://doi.org/10.1016/j.inffus.2022.09.001)
