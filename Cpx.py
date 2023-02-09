@@ -115,32 +115,32 @@ def complexity_data3(X_data, y_data, group, types=None):
     dfx = pd.DataFrame(X_data, copy=False)
     dfy = robjects.IntVector(y_data)
     complex = np.array([])
-    if group[0] == 'overlapping':
-        over = ecol.overlapping(dfx, dfy, measures=types[0],summary='mean')
-        over = np.asarray(over)
-        complex = np.append(complex, over[0])
-    if group[1] == "neighborhood":
-        nei = ecol.neighborhood(dfx, dfy, measures=types[1],summary='mean')
-        nei = np.asarray(nei)
-        complex = np.append(complex, nei[0])
-    if group[2] == "linearity":
-        line = ecol.linearity(dfx, dfy, measures=types[2])
-        line = np.asarray(line)
-        complex = np.append(complex, line[0])
-    if group[3] == "dimensionality":
-        # print('entrei')
-        dim = ecol.dimensionality(dfx, dfy, measures=types[3])
-        dim = np.asarray(dim)
-        complex = np.append(complex, dim[0])
-    if group[4] == "balance":
-        bal = ecol.balance(dfx, dfy, measures=types[4])
-        bal = np.asarray(bal)
-        complex = np.append(complex, bal[0])
-    if group[5] == "network":
-        net = ecol.network(dfx, dfy, measures=types[5])
-        net = np.asarray(net)
-        complex = np.append(complex, net[0])
-    
+    for i in range(0, len(group)):
+        if group[i] == 'overlapping':
+            over = ecol.overlapping(dfx, dfy, measures=types[i],summary='mean')
+            over = np.asarray(over)
+            complex = np.append(complex, over[0])
+        if group[i] == "neighborhood":
+            nei = ecol.neighborhood(dfx, dfy, measures=types[i],summary='mean')
+            nei = np.asarray(nei)
+            complex = np.append(complex, nei[0])
+        if group[i] == "linearity":
+            line = ecol.linearity(dfx, dfy, measures=types[i])
+            line = np.asarray(line)
+            complex = np.append(complex, line[0])
+        if group[i] == "dimensionality":
+            # print('entrei')
+            dim = ecol.dimensionality(dfx, dfy, measures=types[i])
+            dim = np.asarray(dim)
+            complex = np.append(complex, dim[0])
+        if group[i] == "balance":
+            bal = ecol.balance(dfx, dfy, measures=types[i])
+            bal = np.asarray(bal)
+            complex = np.append(complex, bal[0])
+        if group[i] == "network":
+            net = ecol.network(dfx, dfy, measures=types[i])
+            net = np.asarray(net)
+            complex = np.append(complex, net[0])
     complex = complex.tolist()
     del dfx, dfy
     return complex

@@ -25,6 +25,8 @@ import rpy2.robjects.packages as rpackages
 ecol = rpackages.importr("ECoL")
 import rpy2.robjects as robjects
 
+from sklearn.linear_model import Perceptron
+from sklearn.tree import DecisionTreeClassifier
 
 class poolGeneration:
     def __init__(
@@ -44,8 +46,8 @@ class poolGeneration:
         nr_bags = 100
 
     ):
-        self.group = ["overlapping", "neighborhood", "over..", "", "", ""]
-        self.types = ["F1", "T1", "F2", "", "", ""]
+        self.group = ["overlapping", "neighborhood", "", "", "", ""]
+        self.types = ["F1", "T1", "", "", "", ""]
 
         # tipo de avaliação Disperção/ Acc
         self.method_disperse = method_disperse
@@ -104,6 +106,8 @@ class poolGeneration:
         self.c = []
         # salva os bags gerados
         self.bags_saved = []
+
+        self.pool_classificators = []
 
     def generate_bags(self, X_train, y_train):
         indices = np.arange(len(X_train))
@@ -177,7 +181,7 @@ class poolGeneration:
             c, score, pred, pool = zip(*r)
 
             self.c = c
-            # print(c)
+            
 
         elif first_evaluate == False and population == None:
             begin = self.name_individual - self.nr_individual
@@ -498,9 +502,9 @@ class poolGeneration:
             self.bags_temp = bags
 
     def complexidades(self, y_train,X_train,grupos):
-        cpx=Cpx.complexity_data3(y_train,X_train,grupos)
-       
-
+        
+        X_bag, y_bag = train_test_split(X_train, y_train, test_size=self.tam_bags)
+        cpx = Cpx.complexity_data3(X_bag, y_bag,grupos)
         return cpx
     
 
@@ -523,7 +527,6 @@ class poolGeneration:
                 std=np.std(norm)
                 #print(std)
                 std=std.tolist()
-                print(std)
                 stad.append(std)
         # exit(0)
 
@@ -541,14 +544,9 @@ class poolGeneration:
 
             voto[o]=voto[o]+1
             voto[nei+5]=voto[nei+5]+1
-
-            text = ''
-            for carro, cor in zip(header, voto):
-                text += '{} {}, '.format(carro, cor)
             #print(text)
-            print("\n",voto)
             #exit(0)
-        return voto, text, max, stad
+        return voto, max, stad
 
     def generate(self, X_train, y_train, X_val, y_val, iteration=20):
         self.X_train = X_train
@@ -558,7 +556,6 @@ class poolGeneration:
         self.iteration = iteration
 
         for t in range(0, self.iteration):
-            print(t)
 
             self.name_individual = 100
             self.off = []
@@ -607,3 +604,27 @@ class poolGeneration:
         for bag in self.bags_saved:
             bags.append(self.build_bags(bag[1:]))
         return bags
+
+    def get_pool(self):
+
+        bags = self.get_bags()
+        pool = []
+
+        if self.classifier == "tree":
+
+            for bag in bags:
+
+                tree = DecisionTreeClassifier()
+                X_bag =bag[0]
+                y_bag = bag[1]
+                
+                pool.append(tree.fit(X_bag, y_bag))
+        else:
+            for bag in bags:
+                percP = Perceptron(tol=1.0)
+                X_bag =bag[0]
+                y_bag = bag[1]
+                
+                pool.append(percP.fit(X_bag, y_bag))
+        self.pool_classificators = pool
+        return pool
