@@ -29,6 +29,8 @@ from sklearn.linear_model import Perceptron
 from sklearn.tree import DecisionTreeClassifier
 
 class poolGeneration:
+    header=['overlapping.F1', 'overlapping.F1v', 'overlapping.F2', 'overlapping.F3', 'overlapping.F4', 'neighborhood.N1', 'neighborhood.N2', 'neighborhood.N3', 'neighborhood.N4', 'neighborhood.T1', 'neighborhood.LSCAvg', 'linearity.L1', 'linearity.L2', 'linearity.L3', '000000.T2', 'dimensionality.T3', 'dimensionality.T4', 'balance.C1', 'balance.C2', 'network.Density', 'network.ClsCoef', 'network.Hubs']
+
     def __init__(
         self,
         method_disperse=True,
@@ -43,11 +45,11 @@ class poolGeneration:
         stop_criteria = "maxdistance",
         classifier = "tree",
         tam_bags = 0.5,
-        nr_bags = 100
+        nr_bags = 100,
+        group = ["overlapping", "neighborhood"],
+        types = None,
 
     ):
-        self.group = ["overlapping", "neighborhood", "", "", "", ""]
-        self.types = ["F1", "T1", "", "", "", ""]
 
         # tipo de avaliação Disperção/ Acc
         self.method_disperse = method_disperse
@@ -108,6 +110,9 @@ class poolGeneration:
         self.bags_saved = []
 
         self.pool_classificators = []
+        self.group = group
+        self.types = types
+
 
     def generate_bags(self, X_train, y_train):
         indices = np.arange(len(X_train))
@@ -501,52 +506,75 @@ class poolGeneration:
             self.gen_temp = generation
             self.bags_temp = bags
 
-    def complexidades(self, y_train,X_train,grupos):
+    def complexities(self, X_train, y_train,grupos):
         
-        X_bag, y_bag = train_test_split(X_train, y_train, test_size=self.tam_bags)
+        _ ,X_bag ,_ ,y_bag = train_test_split(X_train, y_train, test_size=self.tam_bags)
         cpx = Cpx.complexity_data3(X_bag, y_bag,grupos)
         return cpx
     
 
-    def vote_complexity(self, X_train, y_train, grupos):
+        
+    def vote_complexity(self, X_data,y_data,grupos):
         voto = [0] * 11
-        for i in range(1,11):
+        for i in range(1,12):
             
             stad = []
-            comp=[]
-            cp= [ Cpx.complexity_data3(y_train,X_train,grupos) for j in range(100)]
-            del X_train , y_train
-            np.set_printoptions(threshold=np.nan)
+            comp = []
+            cp=[]
+            
+            for  j in range(100):
+                cp.append(self.complexities(X_data, y_data, grupos))
+            # print("passou cpx")
+            # np.set_printoptions(threshold=np.nan)
             comp.append(cp)
-            cpx=np.squeeze(comp)
-            cpx=cpx.T
-
+            comp=np.array(comp)
+            cpx = np.squeeze(comp)
+            cpx = cpx.T
             for k in cpx:
-                norm=Cpx.min_max_norm(k)
-            # print(k)
-                std=np.std(norm)
-                #print(std)
-                std=std.tolist()
+                # print(k)
+                norm = Cpx.min_max_norm(k)
+                
+                std = np.std(norm)
+                # print(std)
+                std = std.tolist()
+                # print(std)
                 stad.append(std)
-        # exit(0)
+                # exit(0)
 
-            max=np.argsort(stad)
-            stad=np.array(stad)
-            max=max[::-1]
-
-
+            max = np.argsort(stad)
+            stad = np.array(stad)
+            max = max[::-1]
             del cpx
-            overlapping=stad[0:5]
-            neighborhood=stad[5:11]
+            overlapping = stad[0:5]
+            neighborhood = stad[5:11]
 
-            o=np.argmax(overlapping)
-            nei=np.argmax(neighborhood)
+            o = np.argmax(overlapping)
+            nei = np.argmax(neighborhood)
 
-            voto[o]=voto[o]+1
-            voto[nei+5]=voto[nei+5]+1
-            #print(text)
-            #exit(0)
-        return voto, max, stad
+            voto[o] = voto[o] + 1
+            voto[nei + 5] = voto[nei + 5] + 1
+
+            text = ''
+            for carro, cor in zip(self.header, voto):
+                text += '{} {}, '.format(carro, cor)
+            # print(text)
+            # print("\n", voto)
+        return voto, text, max, stad
+
+
+    def get_best_types(self, X_train, y_train, group, n=2):
+        print("votting complex...")
+        res = self.vote_complexity(X_train, y_train, group)
+        votes = res[0]
+        ordened = np.argsort(votes)
+        types = []
+        print("types")
+        for i in range(1,n+1):
+            feature = self.header[ordened[-i]]
+            types.append(feature.split('.')[1])
+        
+        return types
+
 
     def generate(self, X_train, y_train, X_val, y_val, iteration=20):
         self.X_train = X_train
@@ -554,8 +582,13 @@ class poolGeneration:
         self.X_val = X_val
         self.y_val = y_val
         self.iteration = iteration
+        
+        if self.types is None:
+            self.types = self.get_best_types( X_train, y_train, self.group)
+
 
         for t in range(0, self.iteration):
+            print("Interation - ", t)
 
             self.name_individual = 100
             self.off = []
